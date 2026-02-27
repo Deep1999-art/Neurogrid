@@ -1,19 +1,18 @@
+[README.md](https://github.com/user-attachments/files/25612444/README.md)
 # NeuroGrid — Brain Training Game
 
 Pattern recognition and memory brain training game by NeuroGrid Ltd.
 
-## Play Now
-Visit the live site to play instantly in your browser — no download required.
-
-## About
-NeuroGrid challenges your working memory, pattern recognition, and processing speed.
-Study glowing patterns, memorise sequences, then tap from memory before time runs out.
+## Files
+- `index.html` — Main game (consent gate + full gameplay + monetisation)
+- `privacy-policy.html` — Privacy Policy page
+- `terms-of-service.html` — Terms of Service page
 
 ## Features
-- Adaptive difficulty across unlimited levels
-- Cognitive score tracker
-- Streak bonus system
-- Original procedurally generated music and sound effects
-- Free to play (Levels 1–10) with Full Game Unlock available
+- Consent gate (localStorage) — GDPR-compliant
+- Level 30 paywall (free levels 1–30)
+- Rewarded ad system (external redirect)
+- Secure unlock flow (Stripe-ready)
+- Google AdSense integrated
 
-© 2025 NeuroGrid Ltd
+© 2026 NeuroGrid Ltd

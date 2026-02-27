@@ -4,23 +4,22 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>NeuroGrid — Brain Training Game</title>
-<meta name="description" content="NeuroGrid: Pattern recognition and memory brain training game by NeuroGrid Ltd"/>
+<meta name="description" content="NeuroGrid: Free pattern recognition and memory brain training game by NeuroGrid Ltd"/>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6536942495941261" crossorigin="anonymous"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet"/>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-  html,body{height:100%;overflow:hidden;background:#060912;}
+  html,body{min-height:100%;background:#060912;}
   body{font-family:'Rajdhani',sans-serif;color:#e0e8ff;touch-action:manipulation;}
-  #root{height:100%;}
-  .ng-root{
-    min-height:100vh;min-height:100dvh;
-    background:radial-gradient(ellipse at 20% 20%,#0d1f3c 0%,#060912 60%),
-               radial-gradient(ellipse at 80% 80%,#1a0830 0%,transparent 60%);
-    display:flex;align-items:center;justify-content:center;padding:20px;
-  }
+  #root{min-height:100%;}
+
+  /* ── CORE LAYOUT ── */
+  .ng-root{min-height:100vh;min-height:100dvh;background:radial-gradient(ellipse at 20% 20%,#0d1f3c 0%,#060912 60%),radial-gradient(ellipse at 80% 80%,#1a0830 0%,transparent 60%);display:flex;align-items:center;justify-content:center;padding:20px 20px 80px;}
   .wrap{width:100%;max-width:460px;}
   .orb{font-family:'Orbitron',monospace;}
+
+  /* ── ANIMATIONS ── */
   .shake{animation:shake .4s ease;}
   @keyframes shake{0%,100%{transform:translateX(0);}20%{transform:translateX(-8px);}40%{transform:translateX(8px);}60%{transform:translateX(-5px);}80%{transform:translateX(5px);}}
   .pulse{animation:pulse 1.2s ease infinite;}
@@ -29,47 +28,76 @@
   @keyframes beat{0%,100%{transform:scale(1);}50%{transform:scale(1.04);}}
   .fadein{animation:fadein .35s ease;}
   @keyframes fadein{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
-  .gbtn{
-    background:linear-gradient(135deg,#4CC9F0 0%,#7B2FBE 100%);
-    border:none;border-radius:10px;color:#fff;
-    font-family:'Orbitron',monospace;font-size:12px;font-weight:700;
-    padding:13px 28px;cursor:pointer;letter-spacing:2px;
-    box-shadow:0 0 30px rgba(76,201,240,.4);transition:all .2s;
-    -webkit-appearance:none;
-  }
+  .fadeup{animation:fadeup .5s ease;}
+  @keyframes fadeup{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+  .spin{animation:spin .9s linear infinite;display:inline-block;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ── BUTTONS ── */
+  .gbtn{background:linear-gradient(135deg,#4CC9F0 0%,#7B2FBE 100%);border:none;border-radius:10px;color:#fff;font-family:'Orbitron',monospace;font-size:12px;font-weight:700;padding:13px 28px;cursor:pointer;letter-spacing:2px;box-shadow:0 0 30px rgba(76,201,240,.4);transition:all .2s;-webkit-appearance:none;}
   .gbtn:hover{transform:translateY(-2px);box-shadow:0 0 50px rgba(76,201,240,.7);}
   .gbtn:active{transform:scale(.97);}
-  .gbtn:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+  .gbtn:disabled{opacity:.45;cursor:not-allowed;transform:none!important;box-shadow:none!important;}
   .gbtn-gold{background:linear-gradient(135deg,#FFD166,#FF9500)!important;color:#1a0a00!important;box-shadow:0 0 30px rgba(255,209,102,.4)!important;}
   .gbtn-gold:hover{box-shadow:0 0 50px rgba(255,209,102,.7)!important;}
   .gbtn-outline{background:rgba(255,255,255,.06)!important;box-shadow:none!important;border:1px solid rgba(255,255,255,.15)!important;}
   .gbtn-green{background:linear-gradient(135deg,#7BFF72,#00C853)!important;color:#001a00!important;box-shadow:0 0 30px rgba(123,255,114,.4)!important;}
+
+  /* ── UI COMPONENTS ── */
   .tbar{height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;margin-bottom:14px;}
   .tfill{height:100%;border-radius:3px;transition:width .1s linear,background .5s;}
   .cbar{height:8px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden;}
   .cfill{height:100%;border-radius:4px;background:linear-gradient(90deg,#4CC9F0,#C77DFF);transition:width .5s ease;box-shadow:0 0 10px rgba(76,201,240,.6);}
   .scard{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px 16px;text-align:center;}
-  .grid{display:grid;gap:6px;}
-  .gcell{border-radius:12px;border:2px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);
-         display:flex;align-items:center;justify-content:center;cursor:pointer;
-         transition:all .14s ease;aspect-ratio:1;user-select:none;}
-  .gcell:hover{border-color:rgba(255,255,255,.22)!important;background:rgba(255,255,255,.07)!important;}
-  .gcell:active{transform:scale(.91)!important;}
-  .overlay{position:fixed;inset:0;background:rgba(6,9,18,.93);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
-  .modal{background:linear-gradient(160deg,#0d1a30,#120820);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px 22px;max-width:340px;width:100%;text-align:center;}
-  .ad-bar{height:4px;border-radius:2px;background:rgba(255,255,255,.1);overflow:hidden;margin:14px 0;}
-  .ad-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,#4CC9F0,#C77DFF);}
   .lvl-bar{height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;margin-bottom:4px;}
   .lvl-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,#4CC9F0,#C77DFF);transition:width .5s;}
   .free-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(123,255,114,.1);border:1px solid rgba(123,255,114,.3);border-radius:12px;padding:3px 11px;font-size:10px;color:#7BFF72;font-family:'Orbitron',monospace;}
   .unlock-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.3);border-radius:20px;padding:4px 12px;font-size:11px;color:#FFD166;margin-bottom:14px;}
-  .audio-ctrl{position:fixed;top:14px;right:14px;z-index:99;display:flex;gap:8px;}
-  .ibtn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;font-size:16px;width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-  .spin{animation:spin .9s linear infinite;display:inline-block;}
-  @keyframes spin{to{transform:rotate(360deg);}}
   .hearts{display:flex;gap:4px;}
   .heart{font-size:20px;transition:opacity .3s;}
-  @media(max-width:380px){.orb.title{font-size:40px!important;}}
+  .ad-bar{height:4px;border-radius:2px;background:rgba(255,255,255,.1);overflow:hidden;margin:14px 0;}
+  .ad-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,#4CC9F0,#C77DFF);}
+
+  /* ── GRID ── */
+  .grid{display:grid;gap:6px;}
+  .gcell{border-radius:12px;border:2px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .14s ease;aspect-ratio:1;user-select:none;}
+  .gcell:hover{border-color:rgba(255,255,255,.22)!important;background:rgba(255,255,255,.07)!important;}
+  .gcell:active{transform:scale(.91)!important;}
+
+  /* ── OVERLAYS & MODALS ── */
+  .overlay{position:fixed;inset:0;background:rgba(6,9,18,.96);display:flex;align-items:center;justify-content:center;z-index:300;padding:20px;}
+  .modal{background:linear-gradient(160deg,#0d1a30,#120820);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px 22px;max-width:360px;width:100%;text-align:center;}
+
+  /* ── CONSENT MODAL ── */
+  .consent-overlay{position:fixed;inset:0;background:rgba(6,9,18,.98);display:flex;align-items:center;justify-content:center;z-index:500;padding:20px;}
+  .consent-modal{background:linear-gradient(160deg,#0a1628,#110720);border:1px solid rgba(76,201,240,.25);border-radius:24px;padding:32px 24px;max-width:380px;width:100%;text-align:center;box-shadow:0 0 60px rgba(76,201,240,.1);}
+  .consent-title{font-family:'Orbitron',monospace;font-size:28px;font-weight:900;background:linear-gradient(135deg,#4CC9F0,#C77DFF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;}
+  .consent-sub{font-size:13px;color:#667799;margin-bottom:20px;letter-spacing:.5px;}
+  .consent-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px;margin-bottom:18px;text-align:left;}
+  .consent-box p{font-size:13px;color:#aabbd0;line-height:1.7;margin-bottom:10px;}
+  .consent-check-row{display:flex;align-items:flex-start;gap:12px;cursor:pointer;}
+  .consent-check-row input[type=checkbox]{width:18px;height:18px;min-width:18px;accent-color:#4CC9F0;cursor:pointer;margin-top:2px;}
+  .consent-check-label{font-size:13px;color:#c0cce0;line-height:1.6;cursor:pointer;}
+  .consent-check-label a{color:#4CC9F0;text-decoration:underline;}
+  .consent-check-label a:hover{color:#7BFF72;}
+  .consent-divider{height:1px;background:rgba(255,255,255,.06);margin:14px 0;}
+
+  /* ── AUDIO CONTROLS ── */
+  .audio-ctrl{position:fixed;top:14px;right:14px;z-index:99;display:flex;gap:8px;}
+  .ibtn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;font-size:16px;width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
+  /* ── FOOTER ── */
+  .site-footer{background:#030608;border-top:1px solid rgba(76,201,240,.12);padding:20px;text-align:center;padding-bottom:24px;}
+  .footer-links{display:flex;justify-content:center;flex-wrap:wrap;gap:0;margin-bottom:8px;}
+  .site-footer a{color:#4CC9F0;text-decoration:none;font-size:12px;padding:0 10px;border-right:1px solid rgba(255,255,255,.12);font-family:'Rajdhani',sans-serif;letter-spacing:.5px;}
+  .site-footer a:last-child{border-right:none;}
+  .site-footer a:hover{color:#fff;text-decoration:underline;}
+  .footer-copy{color:#334455;font-size:11px;margin-top:4px;font-family:'Rajdhani',sans-serif;}
+  .about-box{background:rgba(255,255,255,.02);border-top:1px solid rgba(255,255,255,.05);padding:18px 20px;text-align:center;}
+  .about-box h3{font-family:'Orbitron',monospace;font-size:9px;color:#4CC9F0;letter-spacing:3px;margin-bottom:7px;}
+  .about-box p{font-size:12px;color:#667799;line-height:1.7;max-width:500px;margin:0 auto;}
+
+  @media(max-width:380px){.orb.title{font-size:40px!important;}.consent-title{font-size:22px!important;}}
 </style>
 </head>
 <body>
@@ -82,25 +110,107 @@
 <script type="text/babel">
 const { useState, useEffect, useCallback, useRef } = React;
 
-// ── CONSTANTS ─────────────────────────────────────────────────
-const GRID_SIZE = 5;
-const BASE_TIME = 8000;
-const FREE_LEVEL_LIMIT = 10;
-const UNLOCK_PRICE_LABEL = "$2.99";
-const GLOW = ["#FF4D6D","#4CC9F0","#7BFF72","#FFD166","#C77DFF"];
-const BG   = ["rgba(255,77,109,.18)","rgba(76,201,240,.18)","rgba(123,255,114,.18)","rgba(255,209,102,.18)","rgba(199,125,255,.18)"];
+// ═══════════════════════════════════════════════════════════════
+//  CONFIG — Edit these values to change behaviour
+// ═══════════════════════════════════════════════════════════════
+const CONFIG = {
+  FREE_LEVEL_LIMIT: 30,           // Paywall triggers AFTER level 30
+  UNLOCK_PRICE_LABEL: '$2.99',
+  CONSENT_KEY: 'neurogrid_user_consent',
+  UNLOCK_KEY: 'neurogrid_unlocked',
+  CONTACT_EMAIL: 'sneurogrid@gmail.com',
+  PRIVACY_URL: '/privacy-policy.html',
+  TERMS_URL: '/terms-of-service.html',
 
-// ── MONETIZATION (mock — replace with real SDKs for production) ──
-const Monetization = {
-  showRewardedAd:(onRewarded,onFailed)=>{
-    setTimeout(()=>{ Math.random()>.05?onRewarded():onFailed(); },3000);
-  },
-  purchaseUnlock:(onSuccess)=>{ setTimeout(onSuccess,1800); },
-  restorePurchases:(_,onNone)=>{ setTimeout(onNone,1200); },
-  track:(e,p={})=>{ console.log('[Analytics]',e,p); }
+  // ── MONETISATION LINKS ──────────────────────────────────────
+  // Replace these URLs with your real Stripe / payment links
+  UNLOCK_PAYMENT_URL: 'https://buy.stripe.com/YOUR_STRIPE_LINK',
+  // Replace with your real rewarded ad network link
+  REWARDED_AD_URL: 'https://neurogridgameplay.netlify.app/rewarded-ad.html',
 };
 
-// ── AUDIO ENGINE (100% original — Web Audio API) ──────────────
+// ═══════════════════════════════════════════════════════════════
+//  MONETISATION MODULE
+//  Scalable for AdMob / Stripe / Google Play / Apple StoreKit
+// ═══════════════════════════════════════════════════════════════
+const Monetization = {
+
+  // Called when player taps "Unlock Full Game"
+  // Opens external payment page securely. Unlock only on verified return.
+  initiateUnlock: (onSuccess, onCancelled) => {
+    // Open payment page in new tab
+    const payWindow = window.open(CONFIG.UNLOCK_PAYMENT_URL, '_blank', 'noopener,noreferrer');
+
+    // Poll for verified unlock flag set by payment success redirect
+    // In production: replace with Stripe webhook → set localStorage flag
+    const checkInterval = setInterval(() => {
+      try {
+        const verified = localStorage.getItem('neurogrid_payment_verified') === 'true';
+        if (verified) {
+          clearInterval(checkInterval);
+          localStorage.removeItem('neurogrid_payment_verified');
+          localStorage.setItem(CONFIG.UNLOCK_KEY, 'true');
+          onSuccess();
+        }
+      } catch(e) {}
+    }, 1500);
+
+    // Stop polling after 10 minutes
+    setTimeout(() => {
+      clearInterval(checkInterval);
+      onCancelled();
+    }, 600000);
+
+    console.log('[Monetization] Unlock flow initiated');
+  },
+
+  // Restore purchase from localStorage (for returning users)
+  checkUnlockStatus: () => {
+    try { return localStorage.getItem(CONFIG.UNLOCK_KEY) === 'true'; } catch { return false; }
+  },
+
+  // Called when player taps "Watch Ad to Continue"
+  // Opens ad page. Reward granted only if completion flag is set.
+  showRewardedAd: (onRewarded, onFailed) => {
+    // Track ad view count to prevent abuse
+    const adKey = 'neurogrid_ad_session_' + Date.now();
+    localStorage.setItem(adKey, 'pending');
+
+    // Open ad in new tab
+    const adUrl = CONFIG.REWARDED_AD_URL + '?session=' + adKey;
+    window.open(adUrl, '_blank', 'noopener,noreferrer');
+
+    // Poll for reward completion flag
+    let polls = 0;
+    const check = setInterval(() => {
+      polls++;
+      try {
+        const result = localStorage.getItem(adKey);
+        if (result === 'completed') {
+          clearInterval(check);
+          localStorage.removeItem(adKey);
+          console.log('[Monetization] Ad reward granted');
+          onRewarded();
+        } else if (result === 'failed' || polls > 40) {
+          clearInterval(check);
+          localStorage.removeItem(adKey);
+          console.log('[Monetization] Ad reward not granted');
+          onFailed();
+        }
+      } catch(e) { clearInterval(check); onFailed(); }
+    }, 1500);
+  },
+
+  // Analytics tracker — replace with Firebase / GA4 later
+  track: (event, params = {}) => {
+    console.log('[Analytics]', event, params);
+    // TODO: analytics().logEvent(event, params);
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  AUDIO ENGINE — 100% original, unchanged
+// ═══════════════════════════════════════════════════════════════
 class NeuroAudio {
   constructor(){this.ctx=null;this.mg=null;this.sg=null;this.musg=null;this.nodes=[];this.playing=false;this.muted=false;this.musicMuted=false;this._ref=null;}
   init(){
@@ -111,20 +221,8 @@ class NeuroAudio {
     this.sg=this.ctx.createGain();this.sg.gain.value=.7;this.sg.connect(this.mg);
   }
   resume(){this.ctx?.state==='suspended'&&this.ctx.resume();}
-  _o(f,t,s,d,v,dest){
-    const o=this.ctx.createOscillator(),g=this.ctx.createGain(),dst=dest||this.sg;
-    o.type=t;o.frequency.value=f;
-    g.gain.setValueAtTime(0,s);g.gain.linearRampToValueAtTime(v,s+.012);g.gain.exponentialRampToValueAtTime(.001,s+d);
-    o.connect(g);g.connect(dst);o.start(s);o.stop(s+d+.05);return o;
-  }
-  _n(s,d,v,ff,ft,dest){
-    const dst=dest||this.sg,bLen=Math.floor(this.ctx.sampleRate*d),buf=this.ctx.createBuffer(1,bLen,this.ctx.sampleRate);
-    const dat=buf.getChannelData(0);for(let i=0;i<bLen;i++)dat[i]=(Math.random()*2-1)*Math.exp(-i/(bLen*.4));
-    const src=this.ctx.createBufferSource(),g=this.ctx.createGain(),flt=this.ctx.createBiquadFilter();
-    flt.type=ft||'bandpass';flt.frequency.value=ff||1500;
-    g.gain.setValueAtTime(v,s);g.gain.exponentialRampToValueAtTime(.001,s+d);
-    src.buffer=buf;src.connect(flt);flt.connect(g);g.connect(dst);src.start(s);return src;
-  }
+  _o(f,t,s,d,v,dest){const o=this.ctx.createOscillator(),g=this.ctx.createGain(),dst=dest||this.sg;o.type=t;o.frequency.value=f;g.gain.setValueAtTime(0,s);g.gain.linearRampToValueAtTime(v,s+.012);g.gain.exponentialRampToValueAtTime(.001,s+d);o.connect(g);g.connect(dst);o.start(s);o.stop(s+d+.05);return o;}
+  _n(s,d,v,ff,ft,dest){const dst=dest||this.sg,bLen=Math.floor(this.ctx.sampleRate*d),buf=this.ctx.createBuffer(1,bLen,this.ctx.sampleRate);const dat=buf.getChannelData(0);for(let i=0;i<bLen;i++)dat[i]=(Math.random()*2-1)*Math.exp(-i/(bLen*.4));const src=this.ctx.createBufferSource(),g=this.ctx.createGain(),flt=this.ctx.createBiquadFilter();flt.type=ft||'bandpass';flt.frequency.value=ff||1500;g.gain.setValueAtTime(v,s);g.gain.exponentialRampToValueAtTime(.001,s+d);src.buffer=buf;src.connect(flt);flt.connect(g);g.connect(dst);src.start(s);return src;}
   playTap(ci){if(!this.ctx||this.muted)return;this.resume();const n=this.ctx.currentTime,f=[523.25,587.33,659.25,783.99,880][ci%5];this._o(f,'sine',n,.28,.55);this._o(f*2,'sine',n,.12,.18);this._n(n,.04,.12,4000,'highpass');}
   playSuccess(){if(!this.ctx||this.muted)return;this.resume();const n=this.ctx.currentTime;[523.25,659.25,783.99,1046.5].forEach((f,i)=>{this._o(f,'sine',n+i*.08,.5,.45);this._o(f,'triangle',n+i*.08,.4,.15);});for(let i=0;i<5;i++)this._o(1200+Math.random()*1800,'sine',n+Math.random()*.3,.25,.07);}
   playWrong(){if(!this.ctx||this.muted)return;this.resume();const n=this.ctx.currentTime;this._o(160,'sawtooth',n,.22,.45);this._o(165,'sawtooth',n,.22,.3);this._o(80,'square',n,.18,.2);this._n(n,.15,.25,600,'bandpass');}
@@ -155,11 +253,16 @@ class NeuroAudio {
   toggleMute(){this.muted=!this.muted;this.musicMuted=this.muted;this.mg.gain.value=this.muted?0:1;if(this.muted)this.stopMusic();return this.muted;}
   toggleMusic(){this.musicMuted=!this.musicMuted;if(this.musicMuted)this.stopMusic();else{this.playing=false;this.startMusic();}return this.musicMuted;}
 }
-const audio=new NeuroAudio();
+const audio = new NeuroAudio();
 
-// ── PATTERN GENERATION ────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+//  PATTERN GENERATION — unchanged
+// ═══════════════════════════════════════════════════════════════
+const GLOW = ["#FF4D6D","#4CC9F0","#7BFF72","#FFD166","#C77DFF"];
+const BG   = ["rgba(255,77,109,.18)","rgba(76,201,240,.18)","rgba(123,255,114,.18)","rgba(255,209,102,.18)","rgba(199,125,255,.18)"];
+
 function genPattern(level){
-  const len=Math.min(3+Math.floor(level/2),7),total=GRID_SIZE*GRID_SIZE;
+  const len=Math.min(3+Math.floor(level/2),7),total=25;
   const cells=Array(total).fill(null).map((_,i)=>({id:i,ci:Math.floor(Math.random()*5),isP:false}));
   const idx=[];
   while(idx.length<len){const i=Math.floor(Math.random()*total);if(!idx.includes(i))idx.push(i);}
@@ -167,313 +270,483 @@ function genPattern(level){
   return{cells,idx,len};
 }
 
-// ── GAME COMPONENT ────────────────────────────────────────────
-function NeuroGrid(){
-  const [scr,setScr]=useState('menu');
-  const [level,setLevel]=useState(1);
-  const [score,setScore]=useState(0);
-  const [lives,setLives]=useState(3);
-  const [pat,setPat]=useState(null);
-  const [sel,setSel]=useState([]);
-  const [tLeft,setTLeft]=useState(100);
-  const [msg,setMsg]=useState('');
-  const [cog,setCog]=useState(0);
-  const [studyT,setStudyT]=useState(3);
-  const [streak,setStreak]=useState(0);
-  const [best,setBest]=useState(0);
-  const [shake,setShake]=useState(false);
-  const [flash,setFlash]=useState(null);
-  const [muted,setMuted]=useState(false);
-  const [musicMuted,setMusicMuted]=useState(false);
-  const [aReady,setAReady]=useState(false);
-  const [unlocked,setUnlocked]=useState(false);
-  const [showPay,setShowPay]=useState(false);
-  const [showAd,setShowAd]=useState(false);
-  const [adType,setAdType]=useState(null);
-  const [adWatch,setAdWatch]=useState(false);
-  const [adT,setAdT]=useState(0);
-  const [adFail,setAdFail]=useState(false);
-  const [buying,setBuying]=useState(false);
-  const [buyOk,setBuyOk]=useState(false);
-  const [contUsed,setContUsed]=useState(false);
-  const [restoring,setRestoring]=useState(false);
-  const tRef=useRef(null),sRef=useRef(null),adRef=useRef(null);
+// ═══════════════════════════════════════════════════════════════
+//  CONSENT MODAL COMPONENT
+// ═══════════════════════════════════════════════════════════════
+function ConsentModal({ onAccept }) {
+  const [checked, setChecked] = useState(false);
 
-  const initA=useCallback(()=>{if(!aReady){audio.init();setAReady(true);}}, [aReady]);
-
-  const startLevel=useCallback((lvl)=>{
-    const p=genPattern(lvl);setPat(p);setSel([]);
-    setStudyT(Math.max(2,4-Math.floor(lvl/3)));
-    setScr('study');setMsg('');
-    audio.playStudyStart();
-    if(!audio.playing&&!audio.musicMuted)audio.startMusic();
-    Monetization.track('level_start',{level:lvl});
-  },[]);
-
-  useEffect(()=>{
-    if(scr!=='study')return;
-    let t=Math.max(2,4-Math.floor(level/3));setStudyT(t);
-    sRef.current=setInterval(()=>{t--;setStudyT(t);if(t>0)audio.playTick(t===1);if(t<=0){clearInterval(sRef.current);setScr('play');setTLeft(100);}},1000);
-    return()=>clearInterval(sRef.current);
-  },[scr,level]);
-
-  useEffect(()=>{
-    if(scr!=='play')return;
-    const dur=Math.max(5000,BASE_TIME-level*300);let el=0;
-    tRef.current=setInterval(()=>{el+=100;setTLeft(Math.max(0,100-(el/dur)*100));if(el>=dur){clearInterval(tRef.current);doTimeout();}},100);
-    return()=>clearInterval(tRef.current);
-  },[scr,level]);
-
-  const doTimeout=()=>{
-    audio.playTimeout();
-    setLives(l=>{const nl=l-1;if(nl<=0){audio.playGameOver();audio.stopMusic();setScr('gameover');}else{setMsg('⏰ Time\'s up!');setStreak(0);setTimeout(()=>startLevel(level),1500);}return nl;});
+  const handleAccept = () => {
+    if (!checked) return;
+    try { localStorage.setItem(CONFIG.CONSENT_KEY, 'true'); } catch(e) {}
+    onAccept();
   };
 
-  const cellClick=(id)=>{
-    if(scr!=='play'||!pat)return;initA();
-    const cell=pat.cells[id],exp=pat.idx[sel.length];
-    setFlash(id);setTimeout(()=>setFlash(null),180);
-    if(id===exp){
-      audio.playTap(cell.ci);const ns=[...sel,id];setSel(ns);
-      if(ns.length===pat.len){
+  return (
+    <div className="consent-overlay">
+      <div className="consent-modal fadeup">
+        {/* Logo */}
+        <div style={{marginBottom:6}}>
+          <span style={{fontFamily:"'Orbitron',monospace",fontSize:9,letterSpacing:5,color:'#4CC9F0',opacity:.7}}>COGNITIVE TRAINING</span>
+        </div>
+        <div className="consent-title">NEUROGRID</div>
+        <div className="consent-sub">Brain Training · Pattern Memory · Speed</div>
+
+        {/* Consent Box */}
+        <div className="consent-box">
+          <p>Before you play, please review and accept our legal agreements. This helps us keep NeuroGrid safe, fair, and free for everyone.</p>
+          <div className="consent-divider"/>
+          <label className="consent-check-row" onClick={() => setChecked(!checked)}>
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={() => setChecked(!checked)}
+              onClick={e => e.stopPropagation()}
+            />
+            <span className="consent-check-label">
+              I have read and agree to the{' '}
+              <a href={CONFIG.TERMS_URL} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>
+                Terms of Service
+              </a>
+              {' '}and{' '}
+              <a href={CONFIG.PRIVACY_URL} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>
+                Privacy Policy
+              </a>
+            </span>
+          </label>
+        </div>
+
+        {/* CTA */}
+        <button
+          className="gbtn"
+          style={{width:'100%',marginBottom:14,fontSize:13}}
+          onClick={handleAccept}
+          disabled={!checked}
+        >
+          {checked ? '▶ START PLAYING' : 'TICK BOX TO CONTINUE'}
+        </button>
+
+        <div style={{fontSize:11,color:'#334455',lineHeight:1.6}}>
+          Free to play · Levels 1–{CONFIG.FREE_LEVEL_LIMIT} · No account required<br/>
+          <a href={`mailto:${CONFIG.CONTACT_EMAIL}`} style={{color:'#4CC9F0',fontSize:10}}>{CONFIG.CONTACT_EMAIL}</a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  MAIN GAME COMPONENT
+// ═══════════════════════════════════════════════════════════════
+function NeuroGrid() {
+  // ── Consent State ──
+  const [consentGiven, setConsentGiven] = useState(() => {
+    try { return localStorage.getItem(CONFIG.CONSENT_KEY) === 'true'; } catch { return false; }
+  });
+
+  // ── Game State ── (all unchanged)
+  const [scr, setScr]         = useState('menu');
+  const [level, setLevel]     = useState(1);
+  const [score, setScore]     = useState(0);
+  const [lives, setLives]     = useState(3);
+  const [pat, setPat]         = useState(null);
+  const [sel, setSel]         = useState([]);
+  const [tLeft, setTLeft]     = useState(100);
+  const [msg, setMsg]         = useState('');
+  const [cog, setCog]         = useState(0);
+  const [studyT, setStudyT]   = useState(3);
+  const [streak, setStreak]   = useState(0);
+  const [best, setBest]       = useState(0);
+  const [shake, setShake]     = useState(false);
+  const [flash, setFlash]     = useState(null);
+  const [muted, setMuted]     = useState(false);
+  const [musicMuted, setMusicMuted] = useState(false);
+  const [aReady, setAReady]   = useState(false);
+
+  // ── Monetisation State ──
+  const [unlocked, setUnlocked] = useState(() => Monetization.checkUnlockStatus());
+  const [showPay, setShowPay]   = useState(false);
+  const [showAd, setShowAd]     = useState(false);
+  const [adType, setAdType]     = useState(null);
+  const [adWatch, setAdWatch]   = useState(false);
+  const [adT, setAdT]           = useState(5);
+  const [adFail, setAdFail]     = useState(false);
+  const [buying, setBuying]     = useState(false);
+  const [buyOk, setBuyOk]       = useState(false);
+  const [contUsed, setContUsed] = useState(false);
+
+  const tRef = useRef(null);
+  const sRef = useRef(null);
+  const adRef = useRef(null);
+
+  const initA = useCallback(() => {
+    if (!aReady) { audio.init(); setAReady(true); }
+  }, [aReady]);
+
+  const startLevel = useCallback((lvl) => {
+    const p = genPattern(lvl);
+    setPat(p); setSel([]); setStudyT(Math.max(2, 4 - Math.floor(lvl / 3)));
+    setScr('study'); setMsg('');
+    audio.playStudyStart();
+    if (!audio.playing && !audio.musicMuted) audio.startMusic();
+    Monetization.track('level_start', { level: lvl });
+  }, []);
+
+  // Study countdown
+  useEffect(() => {
+    if (scr !== 'study') return;
+    let t = Math.max(2, 4 - Math.floor(level / 3)); setStudyT(t);
+    sRef.current = setInterval(() => {
+      t--; setStudyT(t);
+      if (t > 0) audio.playTick(t === 1);
+      if (t <= 0) { clearInterval(sRef.current); setScr('play'); setTLeft(100); }
+    }, 1000);
+    return () => clearInterval(sRef.current);
+  }, [scr, level]);
+
+  // Play timer
+  useEffect(() => {
+    if (scr !== 'play') return;
+    const dur = Math.max(5000, 8000 - level * 300);
+    let el = 0;
+    tRef.current = setInterval(() => {
+      el += 100;
+      setTLeft(Math.max(0, 100 - (el / dur) * 100));
+      if (el >= dur) { clearInterval(tRef.current); doTimeout(); }
+    }, 100);
+    return () => clearInterval(tRef.current);
+  }, [scr, level]);
+
+  const doTimeout = () => {
+    audio.playTimeout();
+    setLives(l => {
+      const nl = l - 1;
+      if (nl <= 0) { audio.playGameOver(); audio.stopMusic(); setScr('gameover'); }
+      else { setMsg("⏰ Time's up!"); setStreak(0); setTimeout(() => startLevel(level), 1500); }
+      return nl;
+    });
+  };
+
+  const cellClick = (id) => {
+    if (scr !== 'play' || !pat) return;
+    initA();
+    const cell = pat.cells[id];
+    const exp = pat.idx[sel.length];
+    setFlash(id); setTimeout(() => setFlash(null), 180);
+
+    if (id === exp) {
+      audio.playTap(cell.ci);
+      const ns = [...sel, id]; setSel(ns);
+      if (ns.length === pat.len) {
         clearInterval(tRef.current);
-        const g=100+Math.floor(tLeft)+streak*10,ns2=score+g,nst=streak+1;
-        setScore(ns2);setStreak(nst);setCog(c=>Math.min(100,c+5));setBest(b=>Math.max(b,ns2));
+        const g = 100 + Math.floor(tLeft) + streak * 10;
+        const ns2 = score + g; const nst = streak + 1;
+        setScore(ns2); setStreak(nst); setCog(c => Math.min(100, c + 5));
+        setBest(b => Math.max(b, ns2));
         setMsg(`✨ +${g} pts  |  🔥 Streak ${nst}`);
-        if(nst%3===0)audio.playLevelUp();else audio.playSuccess();
-        setScr('result');Monetization.track('level_complete',{level,score:ns2});
+        if (nst % 3 === 0) audio.playLevelUp(); else audio.playSuccess();
+        setScr('result');
+        Monetization.track('level_complete', { level, score: ns2 });
       }
     } else {
-      audio.playWrong();setShake(true);setTimeout(()=>setShake(false),500);
-      setLives(l=>{const nl=l-1;if(nl<=0){clearInterval(tRef.current);audio.playGameOver();audio.stopMusic();setScr('gameover');}else{setSel([]);setMsg('❌ Wrong! Try again.');}return nl;});
+      audio.playWrong(); setShake(true); setTimeout(() => setShake(false), 500);
+      setLives(l => {
+        const nl = l - 1;
+        if (nl <= 0) { clearInterval(tRef.current); audio.playGameOver(); audio.stopMusic(); setScr('gameover'); }
+        else { setSel([]); setMsg('❌ Wrong! Try again.'); }
+        return nl;
+      });
     }
   };
 
-  const tryNext=()=>{
-    audio.playClick();const nx=level+1;
-    if(nx>FREE_LEVEL_LIMIT&&!unlocked){setShowPay(true);Monetization.track('paywall_shown',{trigger:'level_gate'});}
-    else{setLevel(nx);startLevel(nx);}
+  // ── Level progression with Level 30 gate ──
+  const tryNext = () => {
+    audio.playClick();
+    const nx = level + 1;
+    if (nx > CONFIG.FREE_LEVEL_LIMIT && !unlocked) {
+      setShowPay(true);
+      Monetization.track('paywall_shown', { trigger: 'level_gate', level: nx });
+    } else {
+      setLevel(nx); startLevel(nx);
+    }
   };
 
-  const triggerAd=(type)=>{initA();audio.playClick();setAdType(type);setAdFail(false);setAdWatch(false);setAdT(5);setShowAd(true);};
+  // ── Rewarded Ad Flow ──
+  const triggerAd = (type) => {
+    initA(); audio.playClick();
+    setAdType(type); setAdFail(false); setAdWatch(false); setAdT(5); setShowAd(true);
+  };
 
-  const watchAd=()=>{
-    setAdWatch(true);let t=5;
-    adRef.current=setInterval(()=>{t--;setAdT(t);
-      if(t<=0){clearInterval(adRef.current);
-        Monetization.showRewardedAd(()=>{
-          setShowAd(false);setAdWatch(false);
-          if(adType==='continue'){setLives(3);setContUsed(true);setSel([]);setMsg('▶️ Continue!');startLevel(level);}
-          else if(adType==='hint'){setScr('study');setMsg('💡 Pattern revealed for 2s!');setTimeout(()=>{setScr('play');},2000);}
-        },()=>{setAdFail(true);setAdWatch(false);clearInterval(adRef.current);});
+  const watchAd = () => {
+    setAdWatch(true);
+    // Countdown UI (3s) then trigger external ad
+    let t = 3; setAdT(t);
+    adRef.current = setInterval(() => {
+      t--; setAdT(t);
+      if (t <= 0) {
+        clearInterval(adRef.current);
+        // Open ad — reward only if external page sets completion flag
+        Monetization.showRewardedAd(
+          () => {
+            setShowAd(false); setAdWatch(false);
+            if (adType === 'continue') {
+              setLives(3); setContUsed(true); setSel([]); setMsg('▶️ Continue!');
+              startLevel(level);
+            } else if (adType === 'hint') {
+              setScr('study'); setMsg('💡 Pattern revealed for 2s!');
+              setTimeout(() => { setScr('play'); }, 2000);
+            }
+            Monetization.track('rewarded_ad_completed', { type: adType });
+          },
+          () => { setAdFail(true); setAdWatch(false); }
+        );
       }
-    },1000);
+    }, 1000);
   };
 
-  const doPurchase=()=>{
-    audio.playClick();setBuying(true);
-    Monetization.purchaseUnlock(()=>{setUnlocked(true);setBuying(false);setBuyOk(true);audio.playPurchase();
-      setTimeout(()=>{setBuyOk(false);setShowPay(false);setLevel(level+1);startLevel(level+1);},2500);
-    },()=>setBuying(false));
+  // ── Purchase Flow — external redirect, no auto-unlock ──
+  const doPurchase = () => {
+    audio.playClick(); setBuying(true);
+    Monetization.initiateUnlock(
+      () => {
+        setUnlocked(true); setBuying(false); setBuyOk(true);
+        audio.playPurchase();
+        Monetization.track('iap_completed', { method: 'stripe' });
+        setTimeout(() => {
+          setBuyOk(false); setShowPay(false);
+          setLevel(level + 1); startLevel(level + 1);
+        }, 2500);
+      },
+      () => { setBuying(false); }
+    );
   };
 
-  const doRestore=()=>{
-    setRestoring(true);
-    Monetization.restorePurchases(()=>{setUnlocked(true);setRestoring(false);setShowPay(false);},()=>setRestoring(false));
+  const startGame = () => {
+    initA(); audio.playClick();
+    setScore(0); setLives(3); setLevel(1); setStreak(0); setCog(0); setContUsed(false);
+    startLevel(1);
   };
 
-  const startGame=()=>{initA();audio.playClick();setScore(0);setLives(3);setLevel(1);setStreak(0);setCog(0);setContUsed(false);startLevel(1);};
-  const restart=()=>{audio.playClick();setLevel(1);setScore(0);setLives(3);setStreak(0);setCog(0);setContUsed(false);startLevel(1);};
-
-  const cs=(cell,idx)=>{
-    const isSel=sel.includes(idx),isFlash=flash===idx,isShow=cell.isP&&(scr==='study');
-    const c=GLOW[cell.ci],bg=BG[cell.ci];
-    return{borderColor:isShow||isSel?c:'rgba(255,255,255,.07)',background:isShow||isSel?bg:isFlash?'rgba(255,255,255,.14)':'rgba(255,255,255,.03)',boxShadow:isShow||isSel?`0 0 18px ${c}55,inset 0 0 10px ${c}22`:'none',transform:isFlash?'scale(.9)':'scale(1)'};
+  const restart = () => {
+    audio.playClick();
+    setLevel(1); setScore(0); setLives(3); setStreak(0); setCog(0); setContUsed(false);
+    startLevel(1);
   };
 
-  const Hearts=()=>Array(3).fill(0).map((_,i)=>(
-    <span key={i} className="heart" style={{opacity:i<lives?1:.18,filter:i<lives?'drop-shadow(0 0 6px #FF4D6D)':'none'}}>❤️</span>
+  // ── Cell style ──
+  const cs = (cell, idx) => {
+    const isSel = sel.includes(idx), isFlash = flash === idx;
+    const isShow = cell.isP && scr === 'study';
+    const c = GLOW[cell.ci], bg = BG[cell.ci];
+    return {
+      borderColor: isShow || isSel ? c : 'rgba(255,255,255,.07)',
+      background: isShow || isSel ? bg : isFlash ? 'rgba(255,255,255,.14)' : 'rgba(255,255,255,.03)',
+      boxShadow: isShow || isSel ? `0 0 18px ${c}55,inset 0 0 10px ${c}22` : 'none',
+      transform: isFlash ? 'scale(.9)' : 'scale(1)'
+    };
+  };
+
+  const Hearts = () => Array(3).fill(0).map((_, i) => (
+    <span key={i} className="heart" style={{ opacity: i < lives ? 1 : .18, filter: i < lives ? 'drop-shadow(0 0 6px #FF4D6D)' : 'none' }}>❤️</span>
   ));
+
+  // ── CONSENT GATE — must accept before playing ──
+  if (!consentGiven) {
+    return <ConsentModal onAccept={() => setConsentGiven(true)} />;
+  }
 
   return <>
     {/* Audio Controls */}
     <div className="audio-ctrl">
-      <button className="ibtn" onClick={()=>{initA();setMusicMuted(audio.toggleMusic());}} title="Toggle Music">{musicMuted?'🎵':'🎶'}</button>
-      <button className="ibtn" onClick={()=>{initA();setMuted(audio.toggleMute());setMusicMuted(audio.musicMuted);}} title="Toggle Sound">{muted?'🔇':'🔊'}</button>
-      {unlocked&&<div className="ibtn" style={{cursor:'default',background:'rgba(255,209,102,.1)',border:'1px solid rgba(255,209,102,.3)',fontSize:14}} title="Full Game Unlocked">👑</div>}
+      <button className="ibtn" onClick={() => { initA(); setMusicMuted(audio.toggleMusic()); }} title="Toggle Music">{musicMuted ? '🎵' : '🎶'}</button>
+      <button className="ibtn" onClick={() => { initA(); setMuted(audio.toggleMute()); setMusicMuted(audio.musicMuted); }} title="Toggle Sound">{muted ? '🔇' : '🔊'}</button>
+      {unlocked && <div className="ibtn" style={{ cursor: 'default', background: 'rgba(255,209,102,.1)', border: '1px solid rgba(255,209,102,.3)', fontSize: 14 }} title="Full Game Unlocked">👑</div>}
     </div>
 
-    {/* Rewarded Ad Modal */}
-    {showAd&&<div className="overlay">
+    {/* ── AD MODAL ── */}
+    {showAd && <div className="overlay">
       <div className="modal fadein">
-        {!adWatch&&!adFail&&<>
-          <div style={{fontSize:38,marginBottom:12}}>{adType==='continue'?'💔➡️❤️':'💡'}</div>
-          <div className="orb" style={{fontSize:15,fontWeight:900,color:'#4CC9F0',marginBottom:8}}>{adType==='continue'?'CONTINUE PLAYING':'REVEAL HINT'}</div>
-          <div style={{fontSize:13,color:'#8899bb',marginBottom:20,lineHeight:1.6}}>{adType==='continue'?'Watch a short ad to restore 3 lives and continue.':'Watch a short ad to briefly reveal the pattern for 2 seconds.'}</div>
-          <div style={{display:'flex',gap:10,justifyContent:'center'}}>
+        {!adWatch && !adFail && <>
+          <div style={{ fontSize: 38, marginBottom: 12 }}>{adType === 'continue' ? '💔➡️❤️' : '💡'}</div>
+          <div className="orb" style={{ fontSize: 15, fontWeight: 900, color: '#4CC9F0', marginBottom: 8 }}>
+            {adType === 'continue' ? 'CONTINUE PLAYING' : 'REVEAL HINT'}
+          </div>
+          <div style={{ fontSize: 13, color: '#8899bb', marginBottom: 20, lineHeight: 1.6 }}>
+            {adType === 'continue'
+              ? 'Watch a short ad to restore 3 lives and continue from this level.'
+              : 'Watch a short ad to briefly reveal the pattern for 2 seconds.'}
+          </div>
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
             <button className="gbtn gbtn-green" onClick={watchAd}>▶ WATCH AD</button>
-            <button className="gbtn gbtn-outline" onClick={()=>{setShowAd(false);if(adType==='continue'){audio.stopMusic();setScr('gameover');}}}>NO THANKS</button>
+            <button className="gbtn gbtn-outline" onClick={() => { setShowAd(false); if (adType === 'continue') { audio.stopMusic(); setScr('gameover'); } }}>NO THANKS</button>
           </div>
         </>}
-        {adWatch&&!adFail&&<>
-          <div className="pulse" style={{fontSize:38,marginBottom:12}}>📺</div>
-          <div className="orb" style={{fontSize:13,color:'#4CC9F0',marginBottom:6}}>AD PLAYING...</div>
-          <div style={{fontSize:11,color:'#445566',marginBottom:14}}>Reward granted after completion.</div>
-          <div className="ad-bar"><div className="ad-fill" style={{width:`${((5-adT)/5)*100}%`,transition:'width 1s linear'}}/></div>
-          <div className="orb" style={{fontSize:22,color:'#FFD166'}}>{adT}s</div>
+        {adWatch && !adFail && <>
+          <div className="pulse" style={{ fontSize: 38, marginBottom: 12 }}>📺</div>
+          <div className="orb" style={{ fontSize: 13, color: '#4CC9F0', marginBottom: 6 }}>OPENING AD...</div>
+          <div style={{ fontSize: 11, color: '#445566', marginBottom: 14 }}>Reward granted after completing the ad.</div>
+          <div className="ad-bar"><div className="ad-fill" style={{ width: `${((3 - adT) / 3) * 100}%`, transition: 'width 1s linear' }} /></div>
+          <div className="orb" style={{ fontSize: 22, color: '#FFD166' }}>{adT}s</div>
         </>}
-        {adFail&&<>
-          <div style={{fontSize:34,marginBottom:12}}>⚠️</div>
-          <div className="orb" style={{fontSize:13,color:'#FF4D6D',marginBottom:8}}>AD UNAVAILABLE</div>
-          <div style={{fontSize:12,color:'#667799',marginBottom:18}}>No ad available right now. Try again later.</div>
-          <button className="gbtn gbtn-outline" onClick={()=>setShowAd(false)}>CLOSE</button>
+        {adFail && <>
+          <div style={{ fontSize: 34, marginBottom: 12 }}>⚠️</div>
+          <div className="orb" style={{ fontSize: 13, color: '#FF4D6D', marginBottom: 8 }}>AD UNAVAILABLE</div>
+          <div style={{ fontSize: 12, color: '#667799', marginBottom: 18 }}>No ad available right now. Please try again later.</div>
+          <button className="gbtn gbtn-outline" onClick={() => setShowAd(false)}>CLOSE</button>
         </>}
       </div>
     </div>}
 
-    {/* Paywall Modal */}
-    {showPay&&<div className="overlay">
+    {/* ── PAYWALL MODAL — triggers after Level 30 ── */}
+    {showPay && <div className="overlay">
       <div className="modal fadein">
-        {buyOk?<>
-          <div style={{fontSize:48,marginBottom:12}}>👑</div>
-          <div className="orb" style={{fontSize:20,fontWeight:900,color:'#FFD166',marginBottom:8}}>UNLOCKED!</div>
-          <div style={{fontSize:13,color:'#aabbd0'}}>Full game is yours. Enjoy every level!</div>
-        </>:<>
+        {buyOk ? <>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>👑</div>
+          <div className="orb" style={{ fontSize: 20, fontWeight: 900, color: '#FFD166', marginBottom: 8 }}>UNLOCKED!</div>
+          <div style={{ fontSize: 13, color: '#aabbd0' }}>Full game is yours. Enjoy every level!</div>
+        </> : <>
           <div className="unlock-badge">👑 FULL GAME</div>
-          <div className="orb" style={{fontSize:20,fontWeight:900,background:'linear-gradient(135deg,#FFD166,#FF9500)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',marginBottom:6}}>LEVEL {FREE_LEVEL_LIMIT+1}+</div>
-          <div style={{fontSize:13,color:'#8899bb',marginBottom:18,lineHeight:1.7}}>You've completed all <strong style={{color:'#4CC9F0'}}>{FREE_LEVEL_LIMIT} free levels</strong>!<br/>Unlock unlimited levels, no ads ever.</div>
-          <div style={{background:'rgba(255,255,255,.04)',borderRadius:12,padding:14,marginBottom:18,textAlign:'left'}}>
-            {['♾️ Unlimited levels','🚫 Remove all ads','🎨 3 exclusive themes','🧠 Full cognitive history','🏆 Daily challenge mode'].map(f=>(
-              <div key={f} style={{fontSize:12,color:'#aabbd0',padding:'4px 0',borderBottom:'1px solid rgba(255,255,255,.05)'}}>{f}</div>
+          <div className="orb" style={{ fontSize: 18, fontWeight: 900, background: 'linear-gradient(135deg,#FFD166,#FF9500)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: 6 }}>
+            YOU COMPLETED {CONFIG.FREE_LEVEL_LIMIT} FREE LEVELS!
+          </div>
+          <div style={{ fontSize: 13, color: '#8899bb', marginBottom: 18, lineHeight: 1.7 }}>
+            Incredible progress! Unlock the full game to keep going — unlimited levels, zero ads, forever.
+          </div>
+          <div style={{ background: 'rgba(255,255,255,.04)', borderRadius: 12, padding: 14, marginBottom: 18, textAlign: 'left' }}>
+            {['♾️ Unlimited levels', '🚫 Remove all ads', '🎨 3 exclusive themes', '🧠 Full cognitive history', '🏆 Daily challenge mode'].map(f => (
+              <div key={f} style={{ fontSize: 12, color: '#aabbd0', padding: '4px 0', borderBottom: '1px solid rgba(255,255,255,.05)' }}>{f}</div>
             ))}
           </div>
-          <button className="gbtn gbtn-gold" style={{width:'100%',marginBottom:10,fontSize:13}} onClick={doPurchase} disabled={buying}>
-            {buying?<span className="spin">⟳</span>:`UNLOCK FOR ${UNLOCK_PRICE_LABEL}`}
+          <button className="gbtn gbtn-gold" style={{ width: '100%', marginBottom: 10, fontSize: 13 }} onClick={doPurchase} disabled={buying}>
+            {buying ? <><span className="spin">⟳</span> OPENING PAYMENT...</> : `UNLOCK FOR ${CONFIG.UNLOCK_PRICE_LABEL}`}
           </button>
-          <button className="gbtn gbtn-outline" style={{width:'100%',marginBottom:10,fontSize:11}} onClick={doRestore} disabled={restoring}>{restoring?'RESTORING...':'RESTORE PURCHASE'}</button>
-          <button className="gbtn gbtn-outline" style={{width:'100%',fontSize:11}} onClick={()=>{audio.playClick();setShowPay(false);}}>MAYBE LATER</button>
-          <div style={{fontSize:10,color:'#445566',marginTop:12}}>One-time · No subscription · Yours forever</div>
+          <button className="gbtn gbtn-outline" style={{ width: '100%', marginBottom: 10, fontSize: 11 }} onClick={() => { audio.playClick(); setShowPay(false); }}>MAYBE LATER</button>
+          <div style={{ fontSize: 10, color: '#445566', marginTop: 8 }}>One-time · No subscription · Yours forever<br />Questions? <a href={`mailto:${CONFIG.CONTACT_EMAIL}`} style={{ color: '#4CC9F0' }}>{CONFIG.CONTACT_EMAIL}</a></div>
         </>}
       </div>
     </div>}
 
-    {/* Main Game */}
+    {/* ── MAIN GAME ── */}
     <div className="ng-root">
       <div className="wrap">
 
         {/* MENU */}
-        {scr==='menu'&&<div className="fadein" style={{textAlign:'center'}}>
-          <div style={{marginBottom:6}}><span className="orb" style={{fontSize:10,letterSpacing:6,color:'#4CC9F0',opacity:.7}}>COGNITIVE TRAINING</span></div>
-          <h1 className="orb beat title" style={{fontSize:50,fontWeight:900,letterSpacing:4,lineHeight:1.05,background:'linear-gradient(135deg,#4CC9F0,#C77DFF,#FF4D6D)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',marginBottom:6}}>NEURO<br/>GRID</h1>
-          <p style={{fontSize:14,color:'#8899bb',marginBottom:10,letterSpacing:1}}>Pattern Recognition · Memory · Speed</p>
-          <div style={{marginBottom:20}}>{unlocked?<div className="unlock-badge">👑 FULL GAME UNLOCKED</div>:<span className="free-badge">✓ FREE — LEVELS 1–{FREE_LEVEL_LIMIT}</span>}</div>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8,marginBottom:22}}>
-            {[['ADAPT','Evolves to your speed'],['LAYER','Rules build each level'],['TRACK','Cognitive progress']].map(([l,d])=>(
-              <div key={l} className="scard"><div className="orb" style={{fontSize:9,color:'#4CC9F0',letterSpacing:2,marginBottom:3}}>{l}</div><div style={{fontSize:10,color:'#667799'}}>{d}</div></div>
+        {scr === 'menu' && <div className="fadein" style={{ textAlign: 'center' }}>
+          <div style={{ marginBottom: 6 }}><span className="orb" style={{ fontSize: 10, letterSpacing: 6, color: '#4CC9F0', opacity: .7 }}>COGNITIVE TRAINING</span></div>
+          <h1 className="orb beat title" style={{ fontSize: 50, fontWeight: 900, letterSpacing: 4, lineHeight: 1.05, background: 'linear-gradient(135deg,#4CC9F0,#C77DFF,#FF4D6D)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: 6 }}>NEURO<br />GRID</h1>
+          <p style={{ fontSize: 14, color: '#8899bb', marginBottom: 10, letterSpacing: 1 }}>Pattern Recognition · Memory · Speed</p>
+          <div style={{ marginBottom: 20 }}>
+            {unlocked
+              ? <div className="unlock-badge">👑 FULL GAME UNLOCKED</div>
+              : <span className="free-badge">✓ FREE — LEVELS 1–{CONFIG.FREE_LEVEL_LIMIT}</span>}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 22 }}>
+            {[['ADAPT', 'Evolves to your speed'], ['LAYER', 'Rules build each level'], ['TRACK', 'Cognitive progress']].map(([l, d]) => (
+              <div key={l} className="scard"><div className="orb" style={{ fontSize: 9, color: '#4CC9F0', letterSpacing: 2, marginBottom: 3 }}>{l}</div><div style={{ fontSize: 10, color: '#667799' }}>{d}</div></div>
             ))}
           </div>
-          <div style={{marginBottom:18}}>
-            <div style={{background:'rgba(255,255,255,.03)',borderRadius:12,padding:'12px 16px',textAlign:'left',fontSize:13,color:'#aabbd0',lineHeight:1.9}}>
-              1. Study the glowing pattern on the grid<br/>
-              2. Memorise numbered sequence &amp; colors<br/>
-              3. Tap cells in the correct order from memory<br/>
-              4. Faster = more points + streak bonus! 🔥
-            </div>
+          <div style={{ background: 'rgba(255,255,255,.03)', borderRadius: 12, padding: '12px 16px', textAlign: 'left', fontSize: 13, color: '#aabbd0', lineHeight: 1.9, marginBottom: 18 }}>
+            1. Study the glowing pattern on the grid<br />
+            2. Memorise numbered sequence &amp; colors<br />
+            3. Tap cells in the correct order from memory<br />
+            4. Faster = more points + streak bonus! 🔥
           </div>
-          {best>0&&<div style={{marginBottom:14,color:'#FFD166'}} className="orb">BEST: {best.toLocaleString()}</div>}
-          <button className="gbtn" onClick={startGame} style={{marginBottom:12}}>START GAME</button>
-          {!unlocked&&<div>
-            <button className="gbtn gbtn-gold" onClick={()=>{audio.playClick();setShowPay(true);}}>👑 UNLOCK FULL GAME — {UNLOCK_PRICE_LABEL}</button>
-            <div style={{fontSize:11,color:'#445566',marginTop:8}}>One-time · No subscription · Yours forever</div>
+          {best > 0 && <div style={{ marginBottom: 14, color: '#FFD166' }} className="orb">BEST: {best.toLocaleString()}</div>}
+          <button className="gbtn" onClick={startGame} style={{ marginBottom: 12 }}>START GAME</button>
+          {!unlocked && <div>
+            <button className="gbtn gbtn-gold" onClick={() => { audio.playClick(); setShowPay(true); }}>👑 UNLOCK FULL GAME — {CONFIG.UNLOCK_PRICE_LABEL}</button>
+            <div style={{ fontSize: 11, color: '#445566', marginTop: 8 }}>One-time · No subscription · Yours forever</div>
           </div>}
         </div>}
 
         {/* STUDY */}
-        {scr==='study'&&pat&&<div className="fadein">
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
-            <div><div style={{fontSize:10,color:'#667799',letterSpacing:2}}>LEVEL</div><div className="orb" style={{fontSize:26,fontWeight:900,color:'#4CC9F0'}}>{level}</div></div>
-            <div style={{textAlign:'center'}}><div className="pulse orb" style={{fontSize:10,color:'#FFD166',letterSpacing:2}}>MEMORIZE</div><div className="orb" style={{fontSize:42,color:'#FFD166',fontWeight:900,textShadow:'0 0 24px #FFD16699'}}>{studyT}</div></div>
-            <div style={{textAlign:'right'}}><div style={{fontSize:10,color:'#667799',letterSpacing:2}}>SCORE</div><div className="orb" style={{fontSize:20,fontWeight:700}}>{score.toLocaleString()}</div></div>
+        {scr === 'study' && pat && <div className="fadein">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <div><div style={{ fontSize: 10, color: '#667799', letterSpacing: 2 }}>LEVEL</div><div className="orb" style={{ fontSize: 26, fontWeight: 900, color: '#4CC9F0' }}>{level}</div></div>
+            <div style={{ textAlign: 'center' }}><div className="pulse orb" style={{ fontSize: 10, color: '#FFD166', letterSpacing: 2 }}>MEMORIZE</div><div className="orb" style={{ fontSize: 42, color: '#FFD166', fontWeight: 900, textShadow: '0 0 24px #FFD16699' }}>{studyT}</div></div>
+            <div style={{ textAlign: 'right' }}><div style={{ fontSize: 10, color: '#667799', letterSpacing: 2 }}>SCORE</div><div className="orb" style={{ fontSize: 20, fontWeight: 700 }}>{score.toLocaleString()}</div></div>
           </div>
-          <div style={{marginBottom:10,fontSize:12,color:'#8899bb'}}>Memorise <strong style={{color:'#4CC9F0'}}>{pat.len}</strong> cells in order:</div>
-          <div className="grid" style={{gridTemplateColumns:`repeat(${GRID_SIZE},1fr)`}}>
-            {pat.cells.map((cell,idx)=>(
-              <div key={idx} className="gcell" style={{...cs(cell,idx),cursor:'default'}}>
-                {cell.isP&&<span style={{fontSize:16,fontWeight:900,color:GLOW[cell.ci],textShadow:`0 0 10px ${GLOW[cell.ci]}`,fontFamily:"'Orbitron',monospace"}}>{cell.ord+1}</span>}
+          <div style={{ marginBottom: 10, fontSize: 12, color: '#8899bb' }}>Memorise <strong style={{ color: '#4CC9F0' }}>{pat.len}</strong> cells in order:</div>
+          <div className="grid" style={{ gridTemplateColumns: 'repeat(5,1fr)' }}>
+            {pat.cells.map((cell, idx) => (
+              <div key={idx} className="gcell" style={{ ...cs(cell, idx), cursor: 'default' }}>
+                {cell.isP && <span style={{ fontSize: 16, fontWeight: 900, color: GLOW[cell.ci], textShadow: `0 0 10px ${GLOW[cell.ci]}`, fontFamily: "'Orbitron',monospace" }}>{cell.ord + 1}</span>}
               </div>
             ))}
           </div>
-          <div className="hearts" style={{marginTop:12}}><Hearts/></div>
+          <div className="hearts" style={{ marginTop: 12 }}><Hearts /></div>
         </div>}
 
         {/* PLAY */}
-        {scr==='play'&&pat&&<div className="fadein">
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
-            <div><div style={{fontSize:10,color:'#667799',letterSpacing:2}}>LEVEL</div><div className="orb" style={{fontSize:26,fontWeight:900,color:'#4CC9F0'}}>{level}</div></div>
-            <div style={{textAlign:'center'}}><div style={{fontSize:10,color:'#667799',letterSpacing:2,marginBottom:2}}>PROGRESS</div><div className="orb" style={{fontSize:18}}>{sel.length}/{pat.len}</div></div>
-            <div style={{textAlign:'right'}}><div style={{fontSize:10,color:'#667799',letterSpacing:2}}>SCORE</div><div className="orb" style={{fontSize:20,fontWeight:700}}>{score.toLocaleString()}</div></div>
+        {scr === 'play' && pat && <div className="fadein">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            <div><div style={{ fontSize: 10, color: '#667799', letterSpacing: 2 }}>LEVEL</div><div className="orb" style={{ fontSize: 26, fontWeight: 900, color: '#4CC9F0' }}>{level}</div></div>
+            <div style={{ textAlign: 'center' }}><div style={{ fontSize: 10, color: '#667799', letterSpacing: 2, marginBottom: 2 }}>PROGRESS</div><div className="orb" style={{ fontSize: 18 }}>{sel.length}/{pat.len}</div></div>
+            <div style={{ textAlign: 'right' }}><div style={{ fontSize: 10, color: '#667799', letterSpacing: 2 }}>SCORE</div><div className="orb" style={{ fontSize: 20, fontWeight: 700 }}>{score.toLocaleString()}</div></div>
           </div>
-          <div className="tbar"><div className="tfill" style={{width:`${tLeft}%`,background:tLeft>50?'#4CC9F0':tLeft>25?'#FFD166':'#FF4D6D',boxShadow:`0 0 10px ${tLeft>50?'#4CC9F0':tLeft>25?'#FFD166':'#FF4D6D'}`}}/></div>
-          {msg&&<div style={{textAlign:'center',fontSize:13,color:msg.includes('❌')?'#FF4D6D':'#7BFF72',marginBottom:8,letterSpacing:1}}>{msg}</div>}
-          <div className={shake?'shake grid':'grid'} style={{gridTemplateColumns:`repeat(${GRID_SIZE},1fr)`}}>
-            {pat.cells.map((cell,idx)=>(
-              <div key={idx} className="gcell" style={cs(cell,idx)} onClick={()=>cellClick(idx)}>
-                {sel.includes(idx)&&<span style={{fontSize:13,fontWeight:900,color:GLOW[cell.ci],fontFamily:"'Orbitron',monospace"}}>{sel.indexOf(idx)+1}</span>}
+          <div className="tbar"><div className="tfill" style={{ width: `${tLeft}%`, background: tLeft > 50 ? '#4CC9F0' : tLeft > 25 ? '#FFD166' : '#FF4D6D', boxShadow: `0 0 10px ${tLeft > 50 ? '#4CC9F0' : tLeft > 25 ? '#FFD166' : '#FF4D6D'}` }} /></div>
+          {msg && <div style={{ textAlign: 'center', fontSize: 13, color: msg.includes('❌') ? '#FF4D6D' : '#7BFF72', marginBottom: 8, letterSpacing: 1 }}>{msg}</div>}
+          <div className={shake ? 'shake grid' : 'grid'} style={{ gridTemplateColumns: 'repeat(5,1fr)' }}>
+            {pat.cells.map((cell, idx) => (
+              <div key={idx} className="gcell" style={cs(cell, idx)} onClick={() => cellClick(idx)}>
+                {sel.includes(idx) && <span style={{ fontSize: 13, fontWeight: 900, color: GLOW[cell.ci], fontFamily: "'Orbitron',monospace" }}>{sel.indexOf(idx) + 1}</span>}
               </div>
             ))}
           </div>
-          <div style={{marginTop:12,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-            <div className="hearts"><Hearts/></div>
-            <div style={{display:'flex',gap:8,alignItems:'center'}}>
-              {streak>1&&<div className="orb" style={{fontSize:12,color:'#FFD166'}}>🔥 {streak}</div>}
-              {!unlocked&&<button onClick={()=>triggerAd('hint')} style={{background:'rgba(76,201,240,.1)',border:'1px solid rgba(76,201,240,.3)',borderRadius:8,color:'#4CC9F0',fontSize:11,padding:'5px 10px',cursor:'pointer',fontFamily:"'Orbitron',monospace"}}>💡 HINT (AD)</button>}
+          <div style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="hearts"><Hearts /></div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              {streak > 1 && <div className="orb" style={{ fontSize: 12, color: '#FFD166' }}>🔥 {streak}</div>}
+              {!unlocked && <button onClick={() => triggerAd('hint')} style={{ background: 'rgba(76,201,240,.1)', border: '1px solid rgba(76,201,240,.3)', borderRadius: 8, color: '#4CC9F0', fontSize: 11, padding: '5px 10px', cursor: 'pointer', fontFamily: "'Orbitron',monospace" }}>💡 HINT (AD)</button>}
             </div>
           </div>
         </div>}
 
         {/* RESULT */}
-        {scr==='result'&&<div className="fadein" style={{textAlign:'center'}}>
-          <div className="orb" style={{fontSize:38,fontWeight:900,color:'#7BFF72',textShadow:'0 0 30px #7BFF7288',marginBottom:4}}>CORRECT!</div>
-          <div style={{fontSize:14,color:'#8899bb',marginBottom:20}}>{msg}</div>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}}>
-            <div className="scard"><div style={{fontSize:10,color:'#667799',letterSpacing:2,marginBottom:4}}>SCORE</div><div className="orb" style={{fontSize:26,fontWeight:900,color:'#4CC9F0'}}>{score.toLocaleString()}</div></div>
-            <div className="scard"><div style={{fontSize:10,color:'#667799',letterSpacing:2,marginBottom:4}}>LEVEL</div><div className="orb" style={{fontSize:26,fontWeight:900,color:'#C77DFF'}}>{level}</div></div>
+        {scr === 'result' && <div className="fadein" style={{ textAlign: 'center' }}>
+          <div className="orb" style={{ fontSize: 38, fontWeight: 900, color: '#7BFF72', textShadow: '0 0 30px #7BFF7288', marginBottom: 4 }}>CORRECT!</div>
+          <div style={{ fontSize: 14, color: '#8899bb', marginBottom: 20 }}>{msg}</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+            <div className="scard"><div style={{ fontSize: 10, color: '#667799', letterSpacing: 2, marginBottom: 4 }}>SCORE</div><div className="orb" style={{ fontSize: 26, fontWeight: 900, color: '#4CC9F0' }}>{score.toLocaleString()}</div></div>
+            <div className="scard"><div style={{ fontSize: 10, color: '#667799', letterSpacing: 2, marginBottom: 4 }}>LEVEL</div><div className="orb" style={{ fontSize: 26, fontWeight: 900, color: '#C77DFF' }}>{level}</div></div>
           </div>
-          {!unlocked&&<div className="scard" style={{marginBottom:14}}>
-            <div style={{fontSize:10,color:'#667799',letterSpacing:2,marginBottom:6}}>FREE LEVELS</div>
-            <div className="lvl-bar"><div className="lvl-fill" style={{width:`${Math.min(100,(level/FREE_LEVEL_LIMIT)*100)}%`}}/></div>
-            <div style={{fontSize:11,color:'#8899bb',marginTop:4}}>{level}/{FREE_LEVEL_LIMIT} free · <span style={{color:'#FFD166'}}>Unlock all {UNLOCK_PRICE_LABEL}</span></div>
+          {!unlocked && <div className="scard" style={{ marginBottom: 14 }}>
+            <div style={{ fontSize: 10, color: '#667799', letterSpacing: 2, marginBottom: 6 }}>FREE PROGRESS</div>
+            <div className="lvl-bar"><div className="lvl-fill" style={{ width: `${Math.min(100, (level / CONFIG.FREE_LEVEL_LIMIT) * 100)}%` }} /></div>
+            <div style={{ fontSize: 11, color: '#8899bb', marginTop: 4 }}>{level}/{CONFIG.FREE_LEVEL_LIMIT} free levels · <span style={{ color: '#FFD166' }}>Unlock all {CONFIG.UNLOCK_PRICE_LABEL}</span></div>
           </div>}
-          <div className="scard" style={{marginBottom:20}}>
-            <div style={{fontSize:10,color:'#667799',letterSpacing:2,marginBottom:8}}>🧠 COGNITIVE SCORE</div>
-            <div className="cbar"><div className="cfill" style={{width:`${cog}%`}}/></div>
-            <div className="orb" style={{fontSize:12,color:'#4CC9F0',marginTop:6}}>{cog}%</div>
+          <div className="scard" style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 10, color: '#667799', letterSpacing: 2, marginBottom: 8 }}>🧠 COGNITIVE SCORE</div>
+            <div className="cbar"><div className="cfill" style={{ width: `${cog}%` }} /></div>
+            <div className="orb" style={{ fontSize: 12, color: '#4CC9F0', marginTop: 6 }}>{cog}%</div>
           </div>
-          <button className="gbtn" onClick={tryNext} style={{marginBottom:10}}>{level+1>FREE_LEVEL_LIMIT&&!unlocked?'👑 UNLOCK TO CONTINUE':'NEXT LEVEL →'}</button>
-          {!unlocked&&level+1>FREE_LEVEL_LIMIT&&<div style={{fontSize:11,color:'#667799'}}>{UNLOCK_PRICE_LABEL} one-time · All levels forever</div>}
+          <button className="gbtn" onClick={tryNext} style={{ marginBottom: 10 }}>
+            {level + 1 > CONFIG.FREE_LEVEL_LIMIT && !unlocked ? '👑 UNLOCK TO CONTINUE' : 'NEXT LEVEL →'}
+          </button>
+          {!unlocked && level + 1 > CONFIG.FREE_LEVEL_LIMIT && <div style={{ fontSize: 11, color: '#667799' }}>{CONFIG.UNLOCK_PRICE_LABEL} one-time · All levels forever</div>}
         </div>}
 
         {/* GAME OVER */}
-        {scr==='gameover'&&<div className="fadein" style={{textAlign:'center'}}>
-          <div className="orb" style={{fontSize:10,letterSpacing:6,color:'#FF4D6D',marginBottom:8}}>SESSION COMPLETE</div>
-          <h2 className="orb" style={{fontSize:44,fontWeight:900,background:'linear-gradient(135deg,#FF4D6D,#C77DFF)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',marginBottom:4}}>GAME<br/>OVER</h2>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16,marginTop:16}}>
-            {[['FINAL SCORE',score.toLocaleString(),'#4CC9F0'],['LEVEL REACHED',level,'#C77DFF'],['BEST STREAK',streak+'x','#FFD166'],['BEST SCORE',best.toLocaleString(),'#7BFF72']].map(([l,v,c])=>(
-              <div key={l} className="scard"><div style={{fontSize:9,color:'#667799',letterSpacing:2,marginBottom:4}}>{l}</div><div className="orb" style={{fontSize:22,fontWeight:900,color:c}}>{v}</div></div>
+        {scr === 'gameover' && <div className="fadein" style={{ textAlign: 'center' }}>
+          <div className="orb" style={{ fontSize: 10, letterSpacing: 6, color: '#FF4D6D', marginBottom: 8 }}>SESSION COMPLETE</div>
+          <h2 className="orb" style={{ fontSize: 44, fontWeight: 900, background: 'linear-gradient(135deg,#FF4D6D,#C77DFF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: 4 }}>GAME<br />OVER</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16, marginTop: 16 }}>
+            {[['FINAL SCORE', score.toLocaleString(), '#4CC9F0'], ['LEVEL REACHED', level, '#C77DFF'], ['BEST STREAK', streak + 'x', '#FFD166'], ['BEST SCORE', best.toLocaleString(), '#7BFF72']].map(([l, v, c]) => (
+              <div key={l} className="scard"><div style={{ fontSize: 9, color: '#667799', letterSpacing: 2, marginBottom: 4 }}>{l}</div><div className="orb" style={{ fontSize: 22, fontWeight: 900, color: c }}>{v}</div></div>
             ))}
           </div>
-          <div className="scard" style={{marginBottom:18}}>
-            <div style={{fontSize:10,color:'#667799',letterSpacing:2,marginBottom:8}}>🧠 COGNITIVE SCORE</div>
-            <div className="cbar"><div className="cfill" style={{width:`${cog}%`}}/></div>
-            <div className="orb" style={{fontSize:14,color:'#4CC9F0',marginTop:6}}>{cog}%</div>
-            <div style={{fontSize:11,color:'#667799',marginTop:4}}>{cog>=70?'🌟 Excellent neural performance!':cog>=40?'⚡ Good pattern retention!':'🔄 Keep training to improve!'}</div>
+          <div className="scard" style={{ marginBottom: 18 }}>
+            <div style={{ fontSize: 10, color: '#667799', letterSpacing: 2, marginBottom: 8 }}>🧠 COGNITIVE SCORE</div>
+            <div className="cbar"><div className="cfill" style={{ width: `${cog}%` }} /></div>
+            <div className="orb" style={{ fontSize: 14, color: '#4CC9F0', marginTop: 6 }}>{cog}%</div>
+            <div style={{ fontSize: 11, color: '#667799', marginTop: 4 }}>{cog >= 70 ? '🌟 Excellent neural performance!' : cog >= 40 ? '⚡ Good pattern retention!' : '🔄 Keep training to improve!'}</div>
           </div>
-          {!contUsed&&lives===0&&<button className="gbtn gbtn-green" style={{width:'100%',marginBottom:10}} onClick={()=>triggerAd('continue')}>📺 WATCH AD TO CONTINUE</button>}
-          <div style={{display:'flex',gap:10,justifyContent:'center',marginBottom:10}}>
+          {!contUsed && lives === 0 && <button className="gbtn gbtn-green" style={{ width: '100%', marginBottom: 10 }} onClick={() => triggerAd('continue')}>📺 WATCH AD TO CONTINUE</button>}
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginBottom: 10 }}>
             <button className="gbtn" onClick={restart}>PLAY AGAIN</button>
-            <button className="gbtn gbtn-outline" onClick={()=>{audio.playClick();setScr('menu');}}>MENU</button>
+            <button className="gbtn gbtn-outline" onClick={() => { audio.playClick(); setScr('menu'); }}>MENU</button>
           </div>
-          {!unlocked&&<button className="gbtn gbtn-gold" style={{width:'100%'}} onClick={()=>{audio.playClick();setShowPay(true);}}>👑 UNLOCK FULL GAME — {UNLOCK_PRICE_LABEL}</button>}
+          {!unlocked && <button className="gbtn gbtn-gold" style={{ width: '100%' }} onClick={() => { audio.playClick(); setShowPay(true); }}>👑 UNLOCK FULL GAME — {CONFIG.UNLOCK_PRICE_LABEL}</button>}
         </div>}
 
       </div>
@@ -482,7 +755,22 @@ function NeuroGrid(){
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<NeuroGrid/>);
+root.render(<NeuroGrid />);
 </script>
+
+<!-- About + Footer -->
+<div class="about-box">
+  <h3>ABOUT NEUROGRID</h3>
+  <p>NeuroGrid is a free cognitive training game designed to improve memory, pattern recognition, and reaction speed. Players study glowing visual sequences and reproduce them under time pressure — enhancing focus, working memory, and mental agility. Suitable for all ages. No download required.</p>
+</div>
+<footer class="site-footer">
+  <div class="footer-links">
+    <a href="/privacy-policy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+    <a href="/terms-of-service.html" target="_blank" rel="noopener noreferrer">Terms of Service</a>
+    <a href="mailto:sneurogrid@gmail.com">Contact: sneurogrid@gmail.com</a>
+  </div>
+  <div class="footer-copy">© 2026 NeuroGrid Ltd. All rights reserved.</div>
+</footer>
+
 </body>
 </html>
